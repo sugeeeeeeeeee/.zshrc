@@ -2,7 +2,7 @@
 # 環境変数
 
 export LANG=ja_JP.UTF-8
-export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 
 #エディタをvimに設定
 export EDITORP=vim
@@ -10,7 +10,8 @@ export EDITORP=vim
 #######################################
 # 外部プラグイン
 # zplug
-source ~/.zplug/init.zsh
+export ZPLUG_HOME=/home/linuxbrew/.linuxbrew/opt/zplug
+source $ZPLUG_HOME/init.zsh
 
 # 構文のハイライト(https://github.com/zsh-users/zsh-syntax-highlighting)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
@@ -114,7 +115,7 @@ TRAPALRM() {
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 ## 補完候補の色づけ
-eval "`dircolors -b ~/.dircolorsrc`"
+eval "`dircolors -b ~/.dircolors`"
 export LSCOLORS=gxfxcxdxbxegedabagacad
 export LS_OPTIONS='--color=auto'
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
