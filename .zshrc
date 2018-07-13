@@ -2,7 +2,8 @@
 # 環境変数
 
 export LANG=ja_JP.UTF-8
-export PATH=/usr/local/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
+export GOPATH=$HOME/dev
+export PATH=/usr/local/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH:$GOPATH/bin
 
 #エディタをvimに設定
 export EDITORP=vim
@@ -56,24 +57,24 @@ unsetopt promptcr
 
 # 頑張って両方にprmptを表示させるヤツ https://qiita.com/zaapainfoz/items/355cd4d884ce03656285
 precmd() {
-  autoload -Uz vcs_info
-  autoload -Uz add-zsh-hook
+	autoload -Uz vcs_info
+	autoload -Uz add-zsh-hook
 
-  zstyle ':vcs_info:*' formats '%F{green}[%b]%f'
-  zstyle ':vcs_info:*' actionformats '%F{red}[%b|%a]%f'
+	zstyle ':vcs_info:*' formats '%F{green}[%b]%f'
+	zstyle ':vcs_info:*' actionformats '%F{red}[%b|%a]%f'
 
-  local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}[%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%} ]'
-  local right="${vcs_info_msg_0_} "
+	local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}[%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%} ]'
+	local right="${vcs_info_msg_0_} "
 
-  LANG=en_US.UTF-8 vcs_info
+	LANG=en_US.UTF-8 vcs_info
 
-  # スペースの長さを計算
-  # テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
-  local invisible='%([BSUbfksu]|([FK]|){*})'
-  local leftwidth=${#${(S%%)left//$~invisible/}}
-  local rightwidth=${#${(S%%)right//$~invisible/}}
-  local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
-  print -P $left${(r:$padwidth:: :)}$right
+	# スペースの長さを計算
+	# テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
+	local invisible='%([BSUbfksu]|([FK]|){*})'
+	local leftwidth=${#${(S%%)left//$~invisible/}}
+	local rightwidth=${#${(S%%)right//$~invisible/}}
+	local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
+	print -P $left${(r:$padwidth:: :)}$right
 }
 
 PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%} '
@@ -95,20 +96,20 @@ reset_lastcomp() {
 }
 
 if is-at-least 5.1; then
-    # avoid menuselect to be cleared by reset-prompt
-    redraw_tmout() {
-        [ "$WIDGET" = "expand-or-complete" ] && [[ "$_lastcomp[insert]" =~ "^automenu$|^menu:" ]] || zle reset-prompt
-        reset_tmout
-    }
+	# avoid menuselect to be cleared by reset-prompt
+	redraw_tmout() {
+		[ "$WIDGET" = "expand-or-complete" ] && [[ "$_lastcomp[insert]" =~ "^automenu$|^menu:" ]] || zle reset-prompt
+		reset_tmout
+	}
 else
-    # evaluating $WIDGET in TMOUT may crash :(
-    redraw_tmout() {
-        zle reset-prompt; reset_tmout
-    }
+	# evaluating $WIDGET in TMOUT may crash :(
+	redraw_tmout() {
+        	zle reset-prompt; reset_tmout
+    	}
 fi
 
 TRAPALRM() {
-    redraw_tmout
+	redraw_tmout
 }
 
 # 単語の区切り文字を指定する
@@ -232,30 +233,42 @@ bindkey "^[[4~" end-of-line
 
 # ヒストリー検索をpecoで。
 peco-select-history() {
-    BUFFER=$(history 1 | sort -k1,1nr | perl -ne 'BEGIN { my @lines = (); } s/^\s*\d+\*?\s*//; $in=$_; if (!(grep {$in eq $_} @lines)) { push(@lines, $in); print $in; }' | peco --query "$LBUFFER")
-    CURSOR=${#BUFFER}
-    zle reset-prompt
+	BUFFER=$(history 1 | sort -k1,1nr | perl -ne 'BEGIN { my @lines = (); } s/^\s*\d+\*?\s*//; $in=$_; if (!(grep {$in eq $_} @lines)) { push(@lines, $in); print $in; }' | peco --query "$LBUFFER")
+	CURSOR=${#BUFFER}
+	zle reset-prompt
 }
 zle -N peco-select-history
 bindkey '^R' peco-select-history
 
 # zをpecoで。
 peco-z-search() {
-  which peco z > /dev/null
-  if [ $? -ne 0 ]; then
-    echo "Please install peco and z"
-    return 1
-  fi
-  local res=$(z | sort -rn | cut -c 12- | peco)
-  if [ -n "$res" ]; then
-    BUFFER+="cd $res"
-    zle accept-line
-  else
-    return 1
-  fi
+	which peco z > /dev/null
+	if [ $? -ne 0 ]; then
+   		 echo "Please install peco and z"
+    		return 1
+  	fi
+  	local res=$(z | sort -rn | cut -c 12- | peco)
+  	if [ -n "$res" ]; then
+  		BUFFER+="cd $res"
+    		zle accept-line
+	else
+		return 1
+	fi
 }
 zle -N peco-z-search
 bindkey '^F' peco-z-search
+
+# リポジトリの移動をpecoで
+function peco-src () {
+	local selected_dir=$(ghq list -p | peco --prompt "REPOSITORY >" --query "$LBUFFER")
+	if [ -n "$selected_dir" ]; then
+		BUFFER="cd ${selected_dir}"
+    		zle accept-line
+  	fi
+  	zle clear-screen
+}
+zle -N peco-src
+bindkey '^]' peco-src
 
 # cd up
 function cd-up() {
@@ -277,13 +290,12 @@ bindkey "^Q" kill-whole-line
 ########################################
 # エイリアス
 if [[ -x /usr/bin/dircolors ]] || [[ -x dircolors ]]; then
-  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-  alias dir='dir --color=auto'
-  alias vdir='vdir --color=auto'
-
-  alias grep='grep --color=auto'
-  alias fgrep='fgrep --color=auto'
-  alias egrep='egrep --color=auto'
+	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+	alias dir='dir --color=auto'
+	alias vdir='vdir --color=auto'
+	alias grep='grep --color=auto'
+	alias fgrep='fgrep --color=auto'
+	alias egrep='egrep --color=auto'
 fi
 
 alias ls='ls --color=auto'
@@ -296,4 +308,16 @@ alias ls='ls --color=auto'
 # 自作関数の設定
 
 ########################################
+# anyenv
+if [[ -d $HOME/.anyenv ]]; then
+	export PATH="$HOME/.anyenv/bin:$PATH"
+	eval "$(anyenv init -)"
+fi
+
+########################################
 # その他
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/nelco/google-cloud-sdk/path.zsh.inc' ]; then source '/home/nelco/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/nelco/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/nelco/google-cloud-sdk/completion.zsh.inc'; fi
