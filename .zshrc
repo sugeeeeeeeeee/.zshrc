@@ -300,17 +300,34 @@ if type gdircolors > /dev/null 2>&1; then
     abbrev-alias egrep='egrep --color=auto'
 fi
 
+# ls
 abbrev-alias l='ls -CF'
 abbrev-alias la='ls -la'
 abbrev-alias ll='ls -l'
 
+# rm
 abbrev-alias rm='rm -i'
+
+# cp
 abbrev-alias cp='cp -i'
+
+# mv
 abbrev-alias mv='mv -i'
 
+# mkdri
 abbrev-alias mkdir='mkdir -p'
 
-abbrev-alias t='tmux'
+# tmux
+abbrev-alias t='tmux new -s "$(date +%Y-%m-%d_%H-%M-%S)"'
+abbrev-alias tl='tmux ls'
+
+# git
+abbrev-alias ga='git add'
+abbrev-alias gc='git commit -m'
+abbrev-alias gp='git push'
+
+# terraform
+abbrev-alias tf='terraform'
 
 ########################################
 # tmuxの設定
