@@ -3,8 +3,7 @@
 
 export LANG=ja_JP.UTF-8
 export GOPATH=$HOME/dev
-export MANPATH=/usr/local/opt/inetutils/libexec/gnuman:$MANPATH
-export PATH=/usr/local/bin:/usr/local/opt/inetutils/libexec/gnubin:$GOPATH/bin:$PATH
+export PATH=/usr/local/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH:$GOPATH/bin
 
 #エディタをvimに設定
 export EDITORP=vim
@@ -12,27 +11,27 @@ export EDITORP=vim
 #######################################
 # 外部プラグイン
 # zplug
-export ZPLUG_HOME=/usr/local/opt/zplug
+export ZPLUG_HOME=/home/linuxbrew/.linuxbrew/opt/zplug
 source $ZPLUG_HOME/init.zsh
 
 # 構文のハイライト(https://github.com/zsh-users/zsh-syntax-highlighting)
-zplug "zsh-users/zsh-syntax-highlighting", defer:2, as:plugin
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
 # タイプ補完
-zplug "zsh-users/zsh-autosuggestions", as:plugin
-zplug "zsh-users/zsh-completions", use:'src/_*', lazy:true, as:plugin
-zplug "chrissicool/zsh-256color", as:plugin
+zplug "zsh-users/zsh-autosuggestions"
+zplug "zsh-users/zsh-completions", use:'src/_*', lazy:true
+zplug "chrissicool/zsh-256color"
 
 # simple trash tool that works on CLI, written in Go(https://github.com/b4b4r07/gomi)
-zplug "b4b4r07/gomi", as:command, from:gh-r, as:plugin
+zplug 'b4b4r07/gomi', as:command, from:gh-r
 
 # 略語を展開する
-zplug "momo-lab/zsh-abbrev-alias", as:plugin
+zplug "momo-lab/zsh-abbrev-alias"
 
 # dockerコマンドの補完
-zplug "felixr/docker-zsh-completion", as:plugin
+zplug "felixr/docker-zsh-completion"
 
 # Tracks your most used directories, based on 'frecency'.
-zplug "rupa/z", use:"*.sh", as:plugin
+zplug "rupa/z", use:"*.sh"
 
 # Install plugins if there are plugins that have not been installed
 zplug load
@@ -117,7 +116,7 @@ TRAPALRM() {
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 ## 補完候補の色づけ
-eval "`gdircolors -b ~/.dircolors`"
+eval "`dircolors -b ~/.dircolors`"
 export LSCOLORS=gxfxcxdxbxegedabagacad
 export LS_OPTIONS='--color=auto'
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
@@ -290,39 +289,20 @@ bindkey "^Q" kill-whole-line
 
 ########################################
 # エイリアス
-if type gdircolors > /dev/null 2>&1; then
-    abbrev-alias ls='ls -G'
-    abbrev-alias dir='dir --color=auto'
-    abbrev-alias vdir='vdir --color=auto'
-
-    abbrev-alias grep='grep --color=auto'
-    abbrev-alias fgrep='fgrep --color=auto'
-    abbrev-alias egrep='egrep --color=auto'
+if [[ -x /usr/bin/dircolors ]] || [[ -x dircolors ]]; then
+	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+	alias dir='dir --color=auto'
+	alias vdir='vdir --color=auto'
+	alias grep='grep --color=auto'
+	alias fgrep='fgrep --color=auto'
+	alias egrep='egrep --color=auto'
 fi
 
-abbrev-alias l='ls -CF'
-abbrev-alias la='ls -la'
-abbrev-alias ll='ls -l'
-
-abbrev-alias rm='rm -i'
-abbrev-alias cp='cp -i'
-abbrev-alias mv='mv -i'
-
-abbrev-alias mkdir='mkdir -p'
-
-abbrev-alias t='tmux'
+alias ls='ls --color=auto'
 
 ########################################
 # tmuxの設定
 # 自動ロギング
-if [[ $TERM = screen ]] || [[ $TERM = screen-256color ]] ; then
-    LOGDIR=$HOME/Documents/term_logs
-    LOGFILE=$(hostname)_$(date +%Y-%m-%d_%H%M%S_%N.log)
-    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
-    tmux  set-option default-terminal "screen" \; \
-        pipe-pane        "cat >> $LOGDIR/$LOGFILE" \; \
-        display-message  "Started logging to $LOGDIR/$LOGFILE"
-fi
 
 ########################################
 # 自作関数の設定
@@ -337,7 +317,7 @@ fi
 ########################################
 # その他
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+if [ -f '/home/nelco/google-cloud-sdk/path.zsh.inc' ]; then source '/home/nelco/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
+if [ -f '/home/nelco/google-cloud-sdk/completion.zsh.inc' ]; then source '/home/nelco/google-cloud-sdk/completion.zsh.inc'; fi
