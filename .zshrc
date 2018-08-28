@@ -87,13 +87,13 @@ autoload -U is-at-least
 zmodload zsh/datetime
 
 reset_tmout() {
-    TMOUT=$[1-EPOCHSECONDS%1]
+	TMOUT=$[1-EPOCHSECONDS%1]
 }
 
 precmd_functions=($precmd_functions reset_tmout reset_lastcomp)
 
 reset_lastcomp() {
-    _lastcomp=()
+	_lastcomp=()
 }
 
 if is-at-least 5.1; then
@@ -117,7 +117,14 @@ TRAPALRM() {
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 ## 補完候補の色づけ
-eval "`gdircolors -b ~/.dircolors`"
+case ${OSTYPE} in
+	darwin*)
+		eval "`gdircolors -b ~/.dircolors`"
+		;;
+	linux*)
+		eval "`dircolors -b ~/.dircolors`"
+		;;
+esac
 export LSCOLORS=gxfxcxdxbxegedabagacad
 export LS_OPTIONS='--color=auto'
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
@@ -273,7 +280,7 @@ bindkey '^]' peco-src
 
 # cd up
 function cd-up() {
-    zle push-line && LBUFFER='builtin cd ..' && zle accept-line
+	zle push-line && LBUFFER='builtin cd ..' && zle accept-line
 }
 zle -N cd-up
 bindkey "^P" cd-up
@@ -290,15 +297,28 @@ bindkey "^Q" kill-whole-line
 
 ########################################
 # エイリアス
-if type gdircolors > /dev/null 2>&1; then
-    abbrev-alias ls='ls -G'
-    abbrev-alias dir='dir --color=auto'
-    abbrev-alias vdir='vdir --color=auto'
-
-    abbrev-alias grep='grep --color=auto'
-    abbrev-alias fgrep='fgrep --color=auto'
-    abbrev-alias egrep='egrep --color=auto'
-fi
+case ${OSTYPE} in
+	darwin*)
+		if type gdircolors > /dev/null 2>&1; then
+			abbrev-alias ls='ls -G'
+			abbrev-alias dir='dir --color=auto'
+			abbrev-alias vdir='vdir --color=auto'
+			abbrev-alias grep='grep --color=auto'
+			abbrev-alias fgrep='fgrep --color=auto'
+			abbrev-alias egrep='egrep --color=auto'
+		fi
+		;;
+	linux*)
+		if type dircolors > /dev/null 2>&1; then
+			abbrev-alias ls='ls --color=auto'
+			abbrev-alias dir='dir --color=auto'
+			abbrev-alias vdir='vdir --color=auto'
+			abbrev-alias grep='grep --color=auto'
+			abbrev-alias fgrep='fgrep --color=auto'
+			abbrev-alias egrep='egrep --color=auto'
+		fi
+		;;
+esac
 
 # ls
 abbrev-alias l='ls -CF'
@@ -326,35 +346,36 @@ abbrev-alias ga='git add'
 abbrev-alias gc='git commit -m'
 abbrev-alias gp='git push'
 
-# terraform
-abbrev-alias tf='terraform'
-
 ########################################
 # tmuxの設定
 # 自動ロギング
 if [[ $TERM = screen ]] || [[ $TERM = screen-256color ]] ; then
-    LOGDIR=$HOME/Documents/term_logs
-    LOGFILE=$(hostname)_$(date +%Y-%m-%d_%H%M%S_%N.log)
-    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
-    tmux  set-option default-terminal "screen" \; \
-        pipe-pane        "cat >> $LOGDIR/$LOGFILE" \; \
-        display-message  "Started logging to $LOGDIR/$LOGFILE"
+	LOGDIR=$HOME/Documents/term_logs
+	LOGFILE=$(hostname)_$(date +%Y-%m-%d_%H%M%S_%N.log)
+	[ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+	tmux  set-option default-terminal "screen" \; \
+		pipe-pane        "cat >> $LOGDIR/$LOGFILE" \; \
+		display-message  "Started logging to $LOGDIR/$LOGFILE"
 fi
 
 ########################################
 # 自作関数の設定
 
 ########################################
-# anyenv
-if [[ -d $HOME/.anyenv ]]; then
-	export PATH="$HOME/.anyenv/bin:$PATH"
-	eval "$(anyenv init -)"
-fi
-
-########################################
 # その他
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
+case ${OSTYPE} in
+	darwin*)
+		;;
+	linux*)
+		# terraform
+		abbrev-alias tf='terraform'
+		# anyenv
+		if [[ -d $HOME/.anyenv ]]; then
+			export PATH="$HOME/.anyenv/bin:$PATH"
+			eval "$(anyenv init - zsh)"
+		fi
+		# gcloud
+		if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+		if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
+		;;
+esac
