@@ -58,24 +58,24 @@ unsetopt promptcr
 
 # 頑張って両方にprmptを表示させるヤツ https://qiita.com/zaapainfoz/items/355cd4d884ce03656285
 precmd() {
-	autoload -Uz vcs_info
-	autoload -Uz add-zsh-hook
+    autoload -Uz vcs_info
+    autoload -Uz add-zsh-hook
 
-	zstyle ':vcs_info:*' formats '%F{green}[%b]%f'
-	zstyle ':vcs_info:*' actionformats '%F{red}[%b|%a]%f'
+    zstyle ':vcs_info:*' formats '%F{green}[%b]%f'
+    zstyle ':vcs_info:*' actionformats '%F{red}[%b|%a]%f'
 
-	local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}[%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%} ]'
-	local right="${vcs_info_msg_0_} "
+    local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}[%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%} ]'
+    local right="${vcs_info_msg_0_} "
 
-	LANG=en_US.UTF-8 vcs_info
+    LANG=en_US.UTF-8 vcs_info
 
-	# スペースの長さを計算
-	# テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
-	local invisible='%([BSUbfksu]|([FK]|){*})'
-	local leftwidth=${#${(S%%)left//$~invisible/}}
-	local rightwidth=${#${(S%%)right//$~invisible/}}
-	local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
-	print -P $left${(r:$padwidth:: :)}$right
+    # スペースの長さを計算
+    # テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
+    local invisible='%([BSUbfksu]|([FK]|){*})'
+    local leftwidth=${#${(S%%)left//$~invisible/}}
+    local rightwidth=${#${(S%%)right//$~invisible/}}
+    local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
+    print -P $left${(r:$padwidth:: :)}$right
 }
 
 PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%} '
@@ -87,30 +87,30 @@ autoload -U is-at-least
 zmodload zsh/datetime
 
 reset_tmout() {
-	TMOUT=$[1-EPOCHSECONDS%1]
+    TMOUT=$[1-EPOCHSECONDS%1]
 }
 
 precmd_functions=($precmd_functions reset_tmout reset_lastcomp)
 
 reset_lastcomp() {
-	_lastcomp=()
+    _lastcomp=()
 }
 
 if is-at-least 5.1; then
-	# avoid menuselect to be cleared by reset-prompt
-	redraw_tmout() {
-		[ "$WIDGET" = "expand-or-complete" ] && [[ "$_lastcomp[insert]" =~ "^automenu$|^menu:" ]] || zle reset-prompt
-		reset_tmout
-	}
+    # avoid menuselect to be cleared by reset-prompt
+    redraw_tmout() {
+        [ "$WIDGET" = "expand-or-complete" ] && [[ "$_lastcomp[insert]" =~ "^automenu$|^menu:" ]] || zle reset-prompt
+        reset_tmout
+    }
 else
-	# evaluating $WIDGET in TMOUT may crash :(
-	redraw_tmout() {
-        	zle reset-prompt; reset_tmout
-    	}
+    # evaluating $WIDGET in TMOUT may crash :(
+    redraw_tmout() {
+            zle reset-prompt; reset_tmout
+        }
 fi
 
 TRAPALRM() {
-	redraw_tmout
+    redraw_tmout
 }
 
 # 単語の区切り文字を指定する
@@ -118,12 +118,12 @@ WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 ## 補完候補の色づけ
 case ${OSTYPE} in
-	darwin*)
-		eval "`gdircolors -b ~/.dircolors`"
-		;;
-	linux*)
-		eval "`dircolors -b ~/.dircolors`"
-		;;
+    darwin*)
+        eval "`gdircolors -b ~/.dircolors`"
+        ;;
+    linux*)
+        eval "`dircolors -b ~/.dircolors`"
+        ;;
 esac
 export LSCOLORS=gxfxcxdxbxegedabagacad
 export LS_OPTIONS='--color=auto'
@@ -241,46 +241,46 @@ bindkey "^[[4~" end-of-line
 
 # ヒストリー検索をpecoで。
 peco-select-history() {
-	BUFFER=$(history 1 | sort -k1,1nr | perl -ne 'BEGIN { my @lines = (); } s/^\s*\d+\*?\s*//; $in=$_; if (!(grep {$in eq $_} @lines)) { push(@lines, $in); print $in; }' | peco --query "$LBUFFER")
-	CURSOR=${#BUFFER}
-	zle reset-prompt
+    BUFFER=$(history 1 | sort -k1,1nr | perl -ne 'BEGIN { my @lines = (); } s/^\s*\d+\*?\s*//; $in=$_; if (!(grep {$in eq $_} @lines)) { push(@lines, $in); print $in; }' | peco --query "$LBUFFER")
+    CURSOR=${#BUFFER}
+    zle reset-prompt
 }
 zle -N peco-select-history
 bindkey '^R' peco-select-history
 
 # zをpecoで。
 peco-z-search() {
-	which peco z > /dev/null
-	if [ $? -ne 0 ]; then
-   		 echo "Please install peco and z"
-    		return 1
-  	fi
-  	local res=$(z | sort -rn | cut -c 12- | peco)
-  	if [ -n "$res" ]; then
-  		BUFFER+="cd $res"
-    		zle accept-line
-	else
-		return 1
-	fi
+    which peco z > /dev/null
+    if [ $? -ne 0 ]; then
+            echo "Please install peco and z"
+            return 1
+      fi
+      local res=$(z | sort -rn | cut -c 12- | peco)
+      if [ -n "$res" ]; then
+          BUFFER+="cd $res"
+            zle accept-line
+    else
+        return 1
+    fi
 }
 zle -N peco-z-search
 bindkey '^F' peco-z-search
 
 # リポジトリの移動をpecoで
 function peco-src () {
-	local selected_dir=$(ghq list -p | peco --prompt "REPOSITORY >" --query "$LBUFFER")
-	if [ -n "$selected_dir" ]; then
-		BUFFER="cd ${selected_dir}"
-    		zle accept-line
-  	fi
-  	zle clear-screen
+    local selected_dir=$(ghq list -p | peco --prompt "REPOSITORY >" --query "$LBUFFER")
+    if [ -n "$selected_dir" ]; then
+        BUFFER="cd ${selected_dir}"
+            zle accept-line
+      fi
+      zle clear-screen
 }
 zle -N peco-src
 bindkey '^]' peco-src
 
 # cd up
 function cd-up() {
-	zle push-line && LBUFFER='builtin cd ..' && zle accept-line
+    zle push-line && LBUFFER='builtin cd ..' && zle accept-line
 }
 zle -N cd-up
 bindkey "^P" cd-up
@@ -298,26 +298,26 @@ bindkey "^Q" kill-whole-line
 ########################################
 # エイリアス
 case ${OSTYPE} in
-	darwin*)
-		if type gdircolors > /dev/null 2>&1; then
-			abbrev-alias ls='ls -G'
-			abbrev-alias dir='dir --color=auto'
-			abbrev-alias vdir='vdir --color=auto'
-			abbrev-alias grep='grep --color=auto'
-			abbrev-alias fgrep='fgrep --color=auto'
-			abbrev-alias egrep='egrep --color=auto'
-		fi
-		;;
-	linux*)
-		if type dircolors > /dev/null 2>&1; then
-			abbrev-alias ls='ls --color=auto'
-			abbrev-alias dir='dir --color=auto'
-			abbrev-alias vdir='vdir --color=auto'
-			abbrev-alias grep='grep --color=auto'
-			abbrev-alias fgrep='fgrep --color=auto'
-			abbrev-alias egrep='egrep --color=auto'
-		fi
-		;;
+    darwin*)
+        if type gdircolors > /dev/null 2>&1; then
+            abbrev-alias ls='ls -G'
+            abbrev-alias dir='dir --color=auto'
+            abbrev-alias vdir='vdir --color=auto'
+            abbrev-alias grep='grep --color=auto'
+            abbrev-alias fgrep='fgrep --color=auto'
+            abbrev-alias egrep='egrep --color=auto'
+        fi
+        ;;
+    linux*)
+        if type dircolors > /dev/null 2>&1; then
+            abbrev-alias ls='ls --color=auto'
+            abbrev-alias dir='dir --color=auto'
+            abbrev-alias vdir='vdir --color=auto'
+            abbrev-alias grep='grep --color=auto'
+            abbrev-alias fgrep='fgrep --color=auto'
+            abbrev-alias egrep='egrep --color=auto'
+        fi
+        ;;
 esac
 
 # ls
@@ -350,12 +350,12 @@ abbrev-alias gp='git push'
 # tmuxの設定
 # 自動ロギング
 if [[ $TERM = screen ]] || [[ $TERM = screen-256color ]] ; then
-	LOGDIR=$HOME/Documents/term_logs
-	LOGFILE=$(hostname)_$(date +%Y-%m-%d_%H%M%S_%N.log)
-	[ ! -d $LOGDIR ] && mkdir -p $LOGDIR
-	tmux  set-option default-terminal "screen" \; \
-		pipe-pane        "cat >> $LOGDIR/$LOGFILE" \; \
-		display-message  "Started logging to $LOGDIR/$LOGFILE"
+    LOGDIR=$HOME/Documents/term_logs
+    LOGFILE=$(hostname)_$(date +%Y-%m-%d_%H%M%S_%N.log)
+    [ ! -d $LOGDIR ] && mkdir -p $LOGDIR
+    tmux  set-option default-terminal "screen" \; \
+        pipe-pane        "cat >> $LOGDIR/$LOGFILE" \; \
+        display-message  "Started logging to $LOGDIR/$LOGFILE"
 fi
 
 ########################################
@@ -364,18 +364,18 @@ fi
 ########################################
 # その他
 case ${OSTYPE} in
-	darwin*)
-		;;
-	linux*)
-		# terraform
-		abbrev-alias tf='terraform'
-		# anyenv
-		if [[ -d $HOME/.anyenv ]]; then
-			export PATH="$HOME/.anyenv/bin:$PATH"
-			eval "$(anyenv init - zsh)"
-		fi
-		# gcloud
-		if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
-		if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
-		;;
+    darwin*)
+        ;;
+    linux*)
+        # terraform
+        abbrev-alias tf='terraform'
+        # anyenv
+        if [[ -d $HOME/.anyenv ]]; then
+            export PATH="$HOME/.anyenv/bin:$PATH"
+            eval "$(anyenv init - zsh)"
+        fi
+        # gcloud
+        if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+        if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
+        ;;
 esac
