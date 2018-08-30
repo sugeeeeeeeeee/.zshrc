@@ -58,28 +58,52 @@ unsetopt promptcr
 
 # 頑張って両方にprmptを表示させるヤツ https://qiita.com/zaapainfoz/items/355cd4d884ce03656285
 precmd() {
-    autoload -Uz vcs_info
-    autoload -Uz add-zsh-hook
 
+  #JUNOSチックに1行空ける
+  print
+  autoload -Uz vcs_info
+  autoload -Uz add-zsh-hook
+
+  if [ "$(uname)" = 'Darwin' ]; then
+    zstyle ':vcs_info:git:*' check-for-changes true
+    zstyle ':vcs_info:git:*' stagedstr "%F{yellow}!"
+    zstyle ':vcs_info:git:*' unstagedstr "%F{magenta}+"
+    zstyle ':vcs_info:*' formats '%F{green}%c%u[✔ %b]%f'
+    zstyle ':vcs_info:*' actionformats '%F{red}%c%u[✑ %b|%a]%f'
+  else
     zstyle ':vcs_info:*' formats '%F{green}[%b]%f'
     zstyle ':vcs_info:*' actionformats '%F{red}[%b|%a]%f'
+  fi
 
-    local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}[%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%} ]'
-    local right="${vcs_info_msg_0_} "
+  if [ "$(uname)" = 'Darwin' ]; then
+  	local left=$'%{\e[$[32+$RANDOM % 5]m%}%n%{\e[0m%}@%{\e[$[32+$RANDOM % 5]m%}%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}➾%{\e[0m%} %{\e[38;5;051m%}%d%{\e[0m%}'
+  else
+  	local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}=>%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%}'
+  fi
+  local right=$'${vcs_info_msg_0_}'
 
-    LANG=en_US.UTF-8 vcs_info
+  LANG=en_US.UTF-8 vcs_info
 
-    # スペースの長さを計算
-    # テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
-    local invisible='%([BSUbfksu]|([FK]|){*})'
-    local leftwidth=${#${(S%%)left//$~invisible/}}
-    local rightwidth=${#${(S%%)right//$~invisible/}}
-    local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
-    print -P $left${(r:$padwidth:: :)}$right
+  # スペースの長さを計算
+  # テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
+  local invisible='%([BSUbfksu]|([FK]|){*})'
+  local leftwidth=${#${(S%%)left//$~invisible/}}
+  local rightwidth=${#${(S%%)right//$~invisible/}}
+  local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
+  print -P $left${(r:$padwidth:: :)}$right
 }
 
-PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%} '
-RPROMPT=$'%{\e[30;48;5;237m%}%{\e[38;5;249m%} %D %* %{\e[0m%}'
+if [ "$(uname)" = 'Darwin' ]; then
+  PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%} '
+else
+  PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%} '
+fi
+
+if [ "$(uname)" = 'Darwin' ]; then
+  RPROMPT=$'%{\e[38;5;001m%}%(?..✘☝)%{\e[0m%} %{\e[30;48;5;237m%}%{\e[38;5;249m%} %D %* %{\e[0m%}'
+else
+  RPROMPT=$'%{\e[30;48;5;237m%}%{\e[38;5;249m%} %D %* %{\e[0m%}'
+fi
 
 # プロンプト自動更新設定
 autoload -U is-at-least
@@ -87,46 +111,38 @@ autoload -U is-at-least
 zmodload zsh/datetime
 
 reset_tmout() {
-    TMOUT=$[1-EPOCHSECONDS%1]
+  TMOUT=$[1-EPOCHSECONDS%1]
 }
 
 precmd_functions=($precmd_functions reset_tmout reset_lastcomp)
 
 reset_lastcomp() {
-    _lastcomp=()
+  _lastcomp=()
 }
 
 if is-at-least 5.1; then
-    # avoid menuselect to be cleared by reset-prompt
-    redraw_tmout() {
-        [ "$WIDGET" = "expand-or-complete" ] && [[ "$_lastcomp[insert]" =~ "^automenu$|^menu:" ]] || zle reset-prompt
-        reset_tmout
-    }
+  # avoid menuselect to be cleared by reset-prompt
+  redraw_tmout() {
+    [ "$WIDGET" = "expand-or-complete" ] && [[ "$_lastcomp[insert]" =~ "^automenu$|^menu:" ]] || zle reset-prompt
+    reset_tmout
+  }
 else
-    # evaluating $WIDGET in TMOUT may crash :(
-    redraw_tmout() {
-            zle reset-prompt; reset_tmout
-        }
+  # evaluating $WIDGET in TMOUT may crash :(
+  redraw_tmout() {
+    zle reset-prompt; reset_tmout
+  }
 fi
 
 TRAPALRM() {
-    redraw_tmout
+  redraw_tmout
 }
 
 # 単語の区切り文字を指定する
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
 ## 補完候補の色づけ
-case ${OSTYPE} in
-    darwin*)
-        eval "`gdircolors -b ~/.dircolors`"
-        ;;
-    linux*)
-        eval "`dircolors -b ~/.dircolors`"
-        ;;
-esac
+#eval `dircolors`
 export LSCOLORS=gxfxcxdxbxegedabagacad
-export LS_OPTIONS='--color=auto'
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
@@ -377,5 +393,22 @@ case ${OSTYPE} in
         # gcloud
         if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
         if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
+
+        # powerlevel9
+        ZSH_THEME="powerlevel9k/powerlevel9k"
+        POWERLEVEL9K_MODE='nerdfont-complete'
+        POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time dir vcs)
+        POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=()
+        POWERLEVEL9K_DISABLE_RPROMPT=true
+        POWERLEVEL9K_TIME_FORMAT="%D{%m\/%d %H:%M}"
+        POWERLEVEL9K_TIME_FOREGROUND='white'
+        POWERLEVEL9K_TIME_BACKGROUND='background'
+        POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
+        POWERLEVEL9K_PROMPT_ON_NEWLINE=true
+        POWERLEVEL9K_RPROMPT_ON_NEWLINE=false
+        POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
+        POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="\u25B8 "
+        POWERLEVEL9K_LEFT_SEGMENT_SEPARATOR=''
+        POWERLEVEL9K_RIGHT_SEGMENT_SEPARATOR=''
         ;;
 esac
