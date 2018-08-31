@@ -76,7 +76,7 @@ precmd() {
   fi
 
   if [ "$(uname)" = 'Darwin' ]; then
-  	local left=$'%{\e[$[32+$RANDOM % 5]m%}%n%{\e[0m%}@%{\e[$[32+$RANDOM % 5]m%}%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}➾%{\e[0m%} %{\e[38;5;051m%}%d%{\e[0m%}'
+    local left=$'%{\e[$[32+$RANDOM % 5]m%}%n%{\e[0m%}@%{\e[$[32+$RANDOM % 5]m%}%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}⥬%{\e[0m%} %{\e[38;5;051m%}%d%{\e[0m%}'
   else
   	local left=$'%{\e[38;5;083m%}%n@%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}=>%{\e[0m%} %{\e[38;5;051m%}%~%{\e[0m%}'
   fi
@@ -94,7 +94,7 @@ precmd() {
 }
 
 if [ "$(uname)" = 'Darwin' ]; then
-  PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%} '
+  PROMPT=$'%(?.😀 .😱 )%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}❯%{\e[0m%} '
 else
   PROMPT=$'%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%}%{\e[$[32+$RANDOM % 5]m%}>%{\e[0m%} '
 fi
