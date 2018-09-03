@@ -323,6 +323,7 @@ case ${OSTYPE} in
             abbrev-alias fgrep='fgrep --color=auto'
             abbrev-alias egrep='egrep --color=auto'
         fi
+        abbrev-alias dockerc='docker-compose'
         ;;
     linux*)
         if type dircolors > /dev/null 2>&1; then
