@@ -363,6 +363,15 @@ abbrev-alias ga='git add'
 abbrev-alias gc='git commit -m'
 abbrev-alias gp='git push'
 
+# go command
+case ${OSTYPE} in
+  darwin*)
+    ;;
+  linux*)
+    abbrev-alias gor='go run'
+    ;;
+esac
+
 ########################################
 # tmuxの設定
 # 自動ロギング
