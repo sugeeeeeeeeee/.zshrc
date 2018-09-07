@@ -391,6 +391,9 @@ fi
 # その他
 case ${OSTYPE} in
     darwin*)
+      if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+        source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+      fi
       ;;
     linux*)
       # terraform
