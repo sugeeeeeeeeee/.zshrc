@@ -75,22 +75,10 @@ precmd() {
     zstyle ':vcs_info:*' actionformats '%F{red}[%b|%a]%f'
   fi
 
-  if [ "$(uname)" = 'Darwin' ]; then
-    local left=$'%{\e[$[32+$RANDOM % 5]m%}%n%{\e[0m%}@%{\e[$[32+$RANDOM % 5]m%}%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}⥬%{\e[0m%} %{\e[38;5;051m%}%d%{\e[0m%}'
-  else
-    local left=$'%{\e[$[32+$RANDOM % 5]m%}%n%{\e[0m%}@%{\e[$[32+$RANDOM % 5]m%}%m%{\e[0m%} %{\e[$[32+$RANDOM % 5]m%}=>%{\e[0m%} %{\e[38;5;051m%}%d%{\e[0m%}'
-  fi
+  local left=$'$(powerline-go --shell zsh $?)'
   local right=$'${vcs_info_msg_0_}'
-
   LANG=en_US.UTF-8 vcs_info
-
-  # スペースの長さを計算
-  # テキストを装飾する場合、エスケープシーケンスをカウントしないようにします
-  local invisible='%([BSUbfksu]|([FK]|){*})'
-  local leftwidth=${#${(S%%)left//$~invisible/}}
-  local rightwidth=${#${(S%%)right//$~invisible/}}
-  local padwidth=$(($COLUMNS - ($leftwidth + $rightwidth) % $COLUMNS))
-  print -P $left${(r:$padwidth:: :)}$right
+  print -P $left
 }
 
 if [ "$(uname)" = 'Darwin' ]; then
