@@ -332,8 +332,8 @@ abbrev-alias l='ls -CF'
 abbrev-alias la='ls -la'
 abbrev-alias ll='ls -l'
 
-# cat
-abbrev-alias cat='bat --paging never'
+# bat
+abbrev-alias bat='bat --paging never'
 
 # rm
 abbrev-alias rm='rm -i'
