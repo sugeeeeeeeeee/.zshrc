@@ -317,30 +317,28 @@ case ${OSTYPE} in
     darwin*)
         if type gdircolors > /dev/null 2>&1; then
             abbrev-alias ls='ls -G'
-            abbrev-alias dir='dir --color=auto'
-            abbrev-alias vdir='vdir --color=auto'
-            abbrev-alias grep='grep --color=auto'
-            abbrev-alias fgrep='fgrep --color=auto'
-            abbrev-alias egrep='egrep --color=auto'
         fi
         abbrev-alias dockerc='docker-compose'
         ;;
     linux*)
         if type dircolors > /dev/null 2>&1; then
             abbrev-alias ls='ls --color=auto'
-            abbrev-alias dir='dir --color=auto'
-            abbrev-alias vdir='vdir --color=auto'
-            abbrev-alias grep='grep --color=auto'
-            abbrev-alias fgrep='fgrep --color=auto'
-            abbrev-alias egrep='egrep --color=auto'
         fi
         ;;
 esac
+abbrev-alias dir='dir --color=auto'
+abbrev-alias vdir='vdir --color=auto'
+abbrev-alias grep='grep --color=auto'
+abbrev-alias fgrep='fgrep --color=auto'
+abbrev-alias egrep='egrep --color=auto'
 
 # ls
 abbrev-alias l='ls -CF'
 abbrev-alias la='ls -la'
 abbrev-alias ll='ls -l'
+
+# cat
+abbrev-alias cat='bat --paging nerver'
 
 # rm
 abbrev-alias rm='rm -i'
