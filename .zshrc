@@ -338,7 +338,7 @@ abbrev-alias la='ls -la'
 abbrev-alias ll='ls -l'
 
 # cat
-abbrev-alias cat='bat --paging nerver'
+abbrev-alias cat='bat --paging never'
 
 # rm
 abbrev-alias rm='rm -i'
